@@ -253,11 +253,12 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 				copy(hs.c.ClientShortId[:], plainText[8:])
 
 				// ip + clientver + UUID + short id
-				fmt.Printf("REALITY_check_redis %v", conn.RemoteAddr().String())
+				fmt.Printf("REALITY_check_redis1")
+				fmt.Printf("REALITY_check_redis %s", remoteAddr)
 				
-				redis_id := fmt.Sprintf("%v_%v_%v", conn.RemoteAddr().String(), hs.c.ClientVer, hs.c.ClientShortId)
+				redis_id := fmt.Sprintf("%s_%s_%s", remoteAddr, hs.c.ClientVer, hs.c.ClientShortId)
 				
-				fmt.Printf("REALITY_redis %v", redis_id)
+				fmt.Printf("REALITY_redis %s", redis_id)
 				
 				if config.Show {
 					fmt.Printf("REALITY remoteAddr: %v\ths.c.ClientVer: %v\n", remoteAddr, hs.c.ClientVer)
