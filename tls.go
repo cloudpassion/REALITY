@@ -257,7 +257,7 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 				
 				redis_id := fmt.Sprintf("%v_%v_%v", conn.RemoteAddr().String(), hs.c.ClientVer, hs.c.ClientShortId)
 				
-				//fmt.Printf("REALITY_redis %v", redis_id)
+				fmt.Printf("REALITY_redis %v", redis_id)
 				
 				if config.Show {
 					fmt.Printf("REALITY remoteAddr: %v\ths.c.ClientVer: %v\n", remoteAddr, hs.c.ClientVer)
