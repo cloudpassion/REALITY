@@ -160,9 +160,6 @@ func Value(vals ...byte) (value int) {
 // You MUST call `DetectPostHandshakeRecordsLens(config)` in advance manually
 // if you don't use REALITY's listener, e.g., Xray-core's RAW transport.
 func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
-	var (
-		redis_id string
-	)
 	
 	remoteAddr := conn.RemoteAddr().String()
 	if config.Show {
@@ -209,6 +206,9 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 	waitGroup.Add(2)
 
 	go func() {
+		var (
+			redis_id string
+		)
 		for {
 			mutex.Lock()
 			hs.clientHello, _, err = hs.c.readClientHello(context.Background()) // TODO: Change some rules in this function.
@@ -255,6 +255,8 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 				copy(hs.c.ClientShortId[:], plainText[8:])
 
 				// ip + clientver + UUID + short id
+				fmt.Printf("REALITY_check_redis %v", RemoteAddr)
+				
 				redis_id := fmt.Sprintf("%v_%v_%v", RemoteAddr, hs.c.ClientVer, hs.c.ClientShortId)
 				
 				fmt.Printf("REALITY_redis %v", redis_id)
