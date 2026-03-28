@@ -140,18 +140,6 @@ func (c *Conn) RemoteAddr() net.Addr {
 	return c.conn.RemoteAddr()
 }
 
-func (c *Conn) ClientVer() [3]byte {
-	return c.conn.ClientVer
-}
-
-func (c *Conn) ClientShortId() [8]byte {
-	return c.conn.ClientShortId
-}
-
-func (c *Conn) config() *Config {
-	return c.conn.config
-}
-
 //response := "Variable string " + strconv.Itoa(data) + " content"
 
 // SetDeadline sets the read and write deadlines associated with the connection.
