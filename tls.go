@@ -164,6 +164,7 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 	remoteAddr := conn.RemoteAddr().String()
 	if config.Show {
 		fmt.Printf("REALITY remoteAddr: %v\n", remoteAddr)
+		fmt.Printf("CHECK_DBG remoteAddr: %v\n", remoteAddr)
 	}
 
 	target, err := config.DialContext(ctx, config.Type, config.Dest)
@@ -206,9 +207,6 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 	waitGroup.Add(2)
 
 	go func() {
-		var (
-			redis_id string
-		)
 		for {
 			mutex.Lock()
 			hs.clientHello, _, err = hs.c.readClientHello(context.Background()) // TODO: Change some rules in this function.
