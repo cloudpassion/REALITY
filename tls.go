@@ -194,8 +194,11 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 
 	//ctx = context.WithValue(ctx, "acc_id", "test") //account.ID.String())
 	
-	remote_id := fmt.Sprint(ctx.Value("acc_id"))
+	remote_id := ctx.Value("acc_id").(string)
 	fmt.Printf("REALITY_remote_id %s\n", remote_id)
+	
+	//remote_id := fmt.Sprint(ctx.Value("acc_id"))
+	//fmt.Printf("REALITY_remote_id %s\n", remote_id)
 
 	remoteAddr := conn.RemoteAddr().String()
 
