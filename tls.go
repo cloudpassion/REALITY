@@ -193,6 +193,7 @@ func Value(vals ...byte) (value int) {
 func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 
 	remote_id := fmt.Sprint(ctx.Value("acc_id"))
+	fmt.Printf("REALITY_remote_id %s\n", remote_id)
 
 	remoteAddr := conn.RemoteAddr().String()
 
