@@ -26,7 +26,7 @@ import (
 	"time"
 	_ "unsafe" // for linkname
 
-	"github.com/xtls/reality/fips140tls"
+	"github.com/cloudpassion/reality/fips140tls"
 )
 
 const (
@@ -1283,7 +1283,7 @@ func (c *Config) mutualVersion(isClient bool, peerVersions []uint16) (uint16, bo
 // errNoCertificates should be an internal detail,
 // but widely used packages access it using linkname.
 // Notable members of the hall of shame include:
-//   - github.com/xtls/xray-core
+//   - github.com/cloudpassion/xray-core
 //
 // Do not remove or change the type signature.
 // See go.dev/issue/67401.

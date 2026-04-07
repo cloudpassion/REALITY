@@ -527,7 +527,7 @@ func aeadAESGCM(key, noncePrefix []byte) aead {
 // aeadAESGCMTLS13 should be an internal detail,
 // but widely used packages access it using linkname.
 // Notable members of the hall of shame include:
-//   - github.com/xtls/xray-core
+//   - github.com/cloudpassion/xray-core
 //   - github.com/v2fly/v2ray-core
 //
 // Do not remove or change the type signature.

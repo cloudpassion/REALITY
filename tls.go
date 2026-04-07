@@ -45,15 +45,19 @@ import (
 	"io"
 	"net"
 	"os"
+	"reflect"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
+	"unsafe"
 
 	"github.com/juju/ratelimit"
 	"github.com/pires/go-proxyproto"
 	"golang.org/x/crypto/curve25519"
 	"golang.org/x/crypto/hkdf"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type CloseWriteConn interface {
@@ -65,6 +69,33 @@ type MirrorConn struct {
 	*sync.Mutex
 	net.Conn
 	Target net.Conn
+}
+
+func printContextInternals(ctx interface{}, inner bool) {
+	contextValues := reflect.ValueOf(ctx).Elem()
+	contextKeys := reflect.TypeOf(ctx).Elem()
+
+	if !inner {
+		fmt.Printf("\nFields for %s.%s\n", contextKeys.PkgPath(), contextKeys.Name())
+	}
+
+	if contextKeys.Kind() == reflect.Struct {
+		for i := 0; i < contextValues.NumField(); i++ {
+			reflectValue := contextValues.Field(i)
+			reflectValue = reflect.NewAt(reflectValue.Type(), unsafe.Pointer(reflectValue.UnsafeAddr())).Elem()
+
+			reflectField := contextKeys.Field(i)
+
+			if reflectField.Name == "Context" {
+				printContextInternals(reflectValue.Interface(), true)
+			} else {
+				fmt.Printf("field name: %+v\n", reflectField.Name)
+				fmt.Printf("value: %+v\n", reflectValue.Interface())
+			}
+		}
+	} else {
+		fmt.Printf("context is empty (int)\n")
+	}
 }
 
 func (c *MirrorConn) Read(b []byte) (int, error) {
@@ -160,9 +191,14 @@ func Value(vals ...byte) (value int) {
 // You MUST call `DetectPostHandshakeRecordsLens(config)` in advance manually
 // if you don't use REALITY's listener, e.g., Xray-core's RAW transport.
 func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
+
+	remote_id := fmt.Sprint(ctx.Value("acc_id"))
+
 	remoteAddr := conn.RemoteAddr().String()
+
 	if config.Show {
 		fmt.Printf("REALITY remoteAddr: %v\n", remoteAddr)
+		fmt.Printf("CHECK_DBG remoteAddr: %v\n", remoteAddr)
 	}
 
 	target, err := config.DialContext(ctx, config.Type, config.Dest)
@@ -249,11 +285,71 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 				copy(hs.c.ClientVer[:], plainText)
 				hs.c.ClientTime = time.Unix(int64(binary.BigEndian.Uint32(plainText[4:])), 0)
 				copy(hs.c.ClientShortId[:], plainText[8:])
+
+				// ip + clientver + UUID + short id
+				fmt.Printf("REALITY_check_redis1 \n")
+				fmt.Printf("REALITY_check_redis %s\n", remoteAddr)
+
+				remote_ip := strings.Split(remoteAddr, ":")[0]
+				remote_ver := fmt.Sprintf("%v.%v.%v", hs.c.ClientVer[0], hs.c.ClientVer[1], hs.c.ClientVer[2])
+				remote_hash := fmt.Sprintf("%s_%s", remote_id, remote_ver)
+
+				fmt.Printf("REALITY_remote_ver %s\n", remote_ver)
+				fmt.Printf("REALITY_remote_id %s\n", remote_id)
+				fmt.Printf("REALITY_remote_hash %s\n", remote_hash)
+
+				redis_id := fmt.Sprintf("%s_%s_%s", remote_id, remote_ip, remote_ver)
+
+				fmt.Printf("REALITY_redis_id %s\n", redis_id)
+
 				if config.Show {
 					fmt.Printf("REALITY remoteAddr: %v\ths.c.ClientVer: %v\n", remoteAddr, hs.c.ClientVer)
 					fmt.Printf("REALITY remoteAddr: %v\ths.c.ClientTime: %v\n", remoteAddr, hs.c.ClientTime)
 					fmt.Printf("REALITY remoteAddr: %v\ths.c.ClientShortId: %v\n", remoteAddr, hs.c.ClientShortId)
 				}
+
+				if true {
+					ctx = context.Background()
+
+					//printContextInternals(ctx, false)
+					//fmt.Printf("REALITY config: %+v\n", config)
+
+					cache_limit_minute := 15
+
+					// init redis store
+					rdb := redis.NewClient(
+						&redis.Options{
+							Addr:     "10.8.94.1:6379",
+							Password: "",
+							DB:       0,
+						})
+
+					current_redis_val, err := rdb.Get(ctx, remote_id).Result()
+
+					if err == redis.Nil {
+						fmt.Println("Key does not exist")
+					} else if err != nil {
+						fmt.Println("panic1")
+						panic(err)
+						break
+					} else {
+						fmt.Println("Value:", current_redis_val)
+						//rd_client_ver := strings.Split(current_redis_val, "_")[1]
+						if current_redis_val != remote_hash {
+							fmt.Println("break")
+							break
+						}
+					}
+
+					// Set key with timeout
+					rerr := rdb.Set(ctx, remote_id, remote_hash, time.Duration(cache_limit_minute)*time.Minute).Err()
+					if rerr != nil {
+						fmt.Println("panic2")
+						panic(rerr)
+						break
+					}
+				}
+
 				if (config.MinClientVer == nil || Value(hs.c.ClientVer[:]...) >= Value(config.MinClientVer...)) &&
 					(config.MaxClientVer == nil || Value(hs.c.ClientVer[:]...) <= Value(config.MaxClientVer...)) &&
 					(config.MaxTimeDiff == 0 || time.Since(hs.c.ClientTime).Abs() <= config.MaxTimeDiff) &&
@@ -372,7 +468,7 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 			if err != nil {
 				break
 			}
-			go func() { // TODO: Probe target's maxUselessRecords and some time-outs in advance.
+			go func() { // TODO: Probe some time-outs in advance.
 				if handshakeLen-len(s2cSaved) > 0 {
 					io.ReadFull(target, buf[:handshakeLen-len(s2cSaved)])
 				}
@@ -422,6 +518,9 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 					}
 				}
 				time.Sleep(5 * time.Second)
+				if maxUseless, ok := GlobalMaxCSSMsgCount.Load(key); ok {
+					hs.c.MaxUselessRecords = maxUseless.(int)
+				}
 			}
 			hs.c.isHandshakeComplete.Store(true)
 			break

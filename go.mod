@@ -1,4 +1,4 @@
-module github.com/xtls/reality
+module github.com/cloudpassion/reality
 
 go 1.24
 
