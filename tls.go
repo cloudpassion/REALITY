@@ -192,6 +192,8 @@ func Value(vals ...byte) (value int) {
 // if you don't use REALITY's listener, e.g., Xray-core's RAW transport.
 func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 
+	ctx = context.WithValue(ctx, "acc_id", "test") //account.ID.String())
+	
 	remote_id := fmt.Sprint(ctx.Value("acc_id"))
 	fmt.Printf("REALITY_remote_id %s\n", remote_id)
 
