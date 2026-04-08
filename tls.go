@@ -295,7 +295,7 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 				fmt.Printf("REALITY_check_redis1 \n")
 				fmt.Printf("REALITY_check_redis %s\n", remoteAddr)
 
-				remote_id := fmt.Sprintf("%s", strings.Join(hs.c.ClientShortId[:], ""))
+				remote_id := string(hs.c.ClientShortId[:])
 				fmt.Println("remote_id: %s", remote_id)
 				
 				if remote_id == "" {
