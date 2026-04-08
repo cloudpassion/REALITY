@@ -337,7 +337,7 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 					//printContextInternals(ctx, false)
 					//fmt.Printf("REALITY config: %+v\n", config)
 
-					cache_limit_minute := 5
+					//cache_limit_minute := 5
 
 					// init redis store
 					rdb := redis.NewClient(
