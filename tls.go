@@ -306,7 +306,7 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 					break
 				}
 				
-				remote_id := strings.Join(hs.c.ClientShortId[:])
+				remote_id := strings.Join(hs.c.ClientShortId[:], "")
 				
 				remote_ip := strings.Split(remoteAddr, ":")[0]
 				remote_ver := fmt.Sprintf("%v.%v.%v", hs.c.ClientVer[0], hs.c.ClientVer[1], hs.c.ClientVer[2])
