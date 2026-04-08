@@ -296,6 +296,10 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 				fmt.Printf("REALITY_check_redis %s\n", remoteAddr)
 
 				remote_id := string(hs.c.ClientShortId[:])
+				if remote_id == "" {
+					fmt.Println("no_remote_id")
+					break
+				}
 				
 				remote_ip := strings.Split(remoteAddr, ":")[0]
 				remote_ver := fmt.Sprintf("%v.%v.%v", hs.c.ClientVer[0], hs.c.ClientVer[1], hs.c.ClientVer[2])
