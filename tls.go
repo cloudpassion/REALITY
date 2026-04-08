@@ -40,6 +40,7 @@ import (
 	"crypto/x509"
 	"encoding/binary"
 	"encoding/pem"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
