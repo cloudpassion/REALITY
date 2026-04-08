@@ -365,7 +365,10 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 					}
 
 					// Set key with timeout
-					rerr := rdb.Set(ctx, remote_id, remote_hash, time.Duration(cache_limit_minute)*time.Minute).Err()
+					//rerr := rdb.Set(ctx, remote_id, remote_hash, time.Duration(cache_limit_minute)*time.Minute).Err()
+					
+					rerr := rdb.Set(ctx, remote_id, remote_hash, 5 * time.Minute).Err()
+					
 					if rerr != nil {
 						fmt.Println("panic2")
 						panic(rerr)
