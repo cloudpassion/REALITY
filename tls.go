@@ -302,6 +302,9 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 				fmt.Printf("REALITY_remote_ver %s\n", remote_ver)
 				fmt.Printf("REALITY_remote_id %s\n", remote_id)
 				fmt.Printf("REALITY_remote_hash %s\n", remote_hash)
+				
+				ctx = context.WithValue(ctx, "remote_ver", remote_ver)
+				ctx = context.WithValue(ctx, "remote_ip", remote_ip)
 
 				redis_id := fmt.Sprintf("%s_%s_%s", remote_id, remote_ip, remote_ver)
 
