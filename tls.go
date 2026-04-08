@@ -298,7 +298,7 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 
 				//remote_id := string(hs.c.ClientShortId[:])
 				remote_id := hex.EncodeToString(hs.c.ClientShortId[:])
-				fmt.Println("remote_id: %s", remote_id)
+				//fmt.Println("remote_id: %s", remote_id)
 				
 				if remote_id == "" {
 					fmt.Println("no_remote_id")
@@ -337,7 +337,7 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 					//printContextInternals(ctx, false)
 					//fmt.Printf("REALITY config: %+v\n", config)
 
-					cache_limit_minute := 15
+					cache_limit_minute := 5
 
 					// init redis store
 					rdb := redis.NewClient(
