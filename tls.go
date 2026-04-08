@@ -295,7 +295,9 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 				fmt.Printf("REALITY_check_redis1 \n")
 				fmt.Printf("REALITY_check_redis %s\n", remoteAddr)
 
-				remote_id := string(hs.c.ClientShortId[:])
+				remote_id := fmt.Printf("%s", hs.c.ClientShortId[:])
+				fmt.Println("remote_id: %s", remote_id)
+				
 				if remote_id == "" {
 					fmt.Println("no_remote_id")
 					break
@@ -305,9 +307,7 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 					fmt.Println("blank_remote_id")
 					break
 				}
-				
-				remote_id := strings.Join(hs.c.ClientShortId[:], "")
-				
+								
 				remote_ip := strings.Split(remoteAddr, ":")[0]
 				remote_ver := fmt.Sprintf("%v.%v.%v", hs.c.ClientVer[0], hs.c.ClientVer[1], hs.c.ClientVer[2])
 				remote_hash := fmt.Sprintf("%s_%s", remote_id, remote_ver)
