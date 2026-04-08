@@ -300,6 +300,13 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 					fmt.Println("no_remote_id")
 					break
 				}
+
+				if remote_id == " " {
+					fmt.Println("blank_remote_id")
+					break
+				}
+				
+				remote_id := strings.Join(hs.c.ClientShortId[:])
 				
 				remote_ip := strings.Split(remoteAddr, ":")[0]
 				remote_ver := fmt.Sprintf("%v.%v.%v", hs.c.ClientVer[0], hs.c.ClientVer[1], hs.c.ClientVer[2])
@@ -347,7 +354,7 @@ func Server(ctx context.Context, conn net.Conn, config *Config) (*Conn, error) {
 						panic(err)
 						break
 					} else {
-						fmt.Println("Value:", current_redis_val)
+						fmt.Println("current_redis_val_Value:", current_redis_val)
 						//rd_client_ver := strings.Split(current_redis_val, "_")[1]
 						if current_redis_val != remote_hash {
 							fmt.Println("break")
